@@ -21,7 +21,7 @@ services:
     environment:
       - sonar.jdbc.url=jdbc:mysql://mysql:3306/sonarqube?createDatabaseIfNotExist=true
       - sonar.jdbc.username=root
-      - sonar.jdbc.password=rootpassword
+      - sonar.jdbc.password=rootpassword  # Ensure this matches the MySQL password
     ports:
       - "9000:9000"
       - "9092:9092"
@@ -58,17 +58,19 @@ services:
     networks:
       - backend-network
 
-  # Ajout du service pour votre application Spring Boot
   tpfoyer:
-    build: .
+    build: .  # Adjust if using a Dockerfile in the current directory
     container_name: tpfoyer
     restart: always
     ports:
-      - "8089:8089"  # L'application expose le port 8089
+      - "8089:8089"
+    image: selimrachdi/tp-foyer:5.0.0
+    environment:
+      SPRING_APPLICATION_JSON: '{"spring": {"datasource": {"url": "jdbc:mysql://mysql:3306/sonarqube", "username": "root", "password": "rootpassword"}}}'  # Match with MySQL password
     networks:
       - backend-network
     depends_on:
-      - mysql  # Si votre application dépend de MySQL pour démarrer
+      - mysql
 
 networks:
   backend-network:
