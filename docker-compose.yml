@@ -1,24 +1,22 @@
-version: '3'  # Vous pouvez omettre cette ligne si vous souhaitez éviter les avertissements
+version: '3'  # Vous pouvez supprimer cette ligne si elle est obsolète
 
 services:
   mysql:
     image: mysql:8.0
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root_password  # Remplacez par un mot de passe fort
-      MYSQL_DATABASE: your_database_name  # Remplacez par le nom de votre base de données
-      MYSQL_USER: your_user  # Remplacez par un utilisateur
-      MYSQL_PASSWORD: your_password  # Remplacez par le mot de passe de l'utilisateur
-    ports:
-      - "3306:3306"  # Port par défaut pour MySQL
+      MYSQL_ROOT_PASSWORD: your_password
+      MYSQL_DATABASE: your_database_name
+      MYSQL_USER: your_user
+      MYSQL_PASSWORD: your_password
     volumes:
       - mysql_data:/var/lib/mysql
 
   spring_project:
-    build: .  # Assurez-vous que le Dockerfile se trouve dans le même répertoire
+    build: .
     container_name: spring_project
     ports:
-      - "8080:8080"  # Port pour accéder à votre application Spring
+      - "8089:8089"  # Utiliser le port 8084 sur l'hôte et le port 8084 dans le conteneur
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/your_database_name
       SPRING_DATASOURCE_USERNAME: your_user
