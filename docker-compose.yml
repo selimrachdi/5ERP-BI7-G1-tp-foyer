@@ -1,4 +1,5 @@
 version: '3.9'
+
 services:
   jenkins:
     build: ./jenkins
@@ -21,7 +22,7 @@ services:
     environment:
       - sonar.jdbc.url=jdbc:mysql://mysql:3306/sonarqube?createDatabaseIfNotExist=true
       - sonar.jdbc.username=root
-      - sonar.jdbc.password=rootpassword  # Ensure this matches the MySQL password
+      - sonar.jdbc.password=rootpassword
     ports:
       - "9000:9000"
     volumes:
@@ -57,14 +58,13 @@ services:
       - backend-network
 
   tpfoyer:
-    build: .  # Adjust if using a Dockerfile in the current directory
+    build: .  # This points to the Dockerfile in the current directory
     container_name: tpfoyer
     restart: always
     ports:
       - "8089:8089"
-    image: selimrachdi/tp-foyer:5.0.0
     environment:
-      SPRING_APPLICATION_JSON: '{"spring": {"datasource": {"url": "jdbc:mysql://mysql:3306/sonarqube", "username": "root", "password": "rootpassword"}}}'  # Match with MySQL password
+      SPRING_APPLICATION_JSON: '{"spring": {"datasource": {"url": "jdbc:mysql://mysql:3306/sonarqube", "username": "root", "password": "rootpassword"}}}'
     networks:
       - backend-network
     depends_on:
