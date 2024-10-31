@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   jenkins:
-    build: ./jenkins
+    build: .  # Build from the Dockerfile in the current directory
     container_name: jenkins
     restart: always
     working_dir: /var/jenkins_home
@@ -20,9 +20,9 @@ services:
     container_name: sonarqube
     restart: always
     environment:
-      - sonar.jdbc.url=jdbc:mysql://mysql:3306/sonarqube?createDatabaseIfNotExist=true
-      - sonar.jdbc.username=root
-      - sonar.jdbc.password=rootpassword
+      sonar.jdbc.url: jdbc:mysql://mysql:3306/sonarqube?createDatabaseIfNotExist=true
+      sonar.jdbc.username: root
+      sonar.jdbc.password: rootpassword
     ports:
       - "9000:9000"
     volumes:
