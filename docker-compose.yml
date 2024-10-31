@@ -1,44 +1,28 @@
-version: '3.8'
+version: '3'  # Vous pouvez omettre cette ligne si vous souhaitez éviter les avertissements
 
 services:
-  jenkins:
-    container_name: jenkins
-    image: selimrachdi5erpbi7-jenkins
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-
   mysql:
-    container_name: mysql
     image: mysql:8.0
-    restart: unless-stopped
+    container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: your_password  # Change as needed
+      MYSQL_ROOT_PASSWORD: root_password  # Remplacez par un mot de passe fort
+      MYSQL_DATABASE: your_database_name  # Remplacez par le nom de votre base de données
+      MYSQL_USER: your_user  # Remplacez par un utilisateur
+      MYSQL_PASSWORD: your_password  # Remplacez par le mot de passe de l'utilisateur
+    ports:
+      - "3306:3306"  # Port par défaut pour MySQL
     volumes:
       - mysql_data:/var/lib/mysql
 
-  nexus:
-    container_name: nexus
-    image: sonatype/nexus3
-    restart: unless-stopped
+  spring_project:
+    build: .  # Assurez-vous que le Dockerfile se trouve dans le même répertoire
+    container_name: spring_project
     ports:
-      - "8081:8081"
-    volumes:
-      - nexus-data:/nexus-data
-
-  sonarqube:
-    container_name: sonarqube
-    image: sonarqube
-    restart: unless-stopped
-    ports:
-      - "9000:9000"
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
+      - "8080:8080"  # Port pour accéder à votre application Spring
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/your_database_name
+      SPRING_DATASOURCE_USERNAME: your_user
+      SPRING_DATASOURCE_PASSWORD: your_password
 
 volumes:
-  jenkins_home:
   mysql_data:
-  nexus_data:
-  sonarqube_data:
