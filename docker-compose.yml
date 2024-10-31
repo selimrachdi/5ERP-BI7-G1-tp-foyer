@@ -1,0 +1,81 @@
+version: '3.9'
+services:
+  jenkins:
+    build: ./jenkins
+    container_name: jenkins
+    restart: always
+    working_dir: /var/jenkins_home
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - backend-network
+
+  sonarqube:
+    image: sonarqube:9.9.5-community
+    container_name: sonarqube
+    restart: always
+    environment:
+      - sonar.jdbc.url=jdbc:mysql://mysql:3306/sonarqube?createDatabaseIfNotExist=true
+      - sonar.jdbc.username=root
+      - sonar.jdbc.password=rootpassword
+    ports:
+      - "9000:9000"
+      - "9092:9092"
+      - "9093:9093"
+    volumes:
+      - sonarqube_data:/opt/sonarqube
+    networks:
+      - backend-network
+    depends_on:
+      - mysql
+
+  nexus:
+    image: sonatype/nexus3
+    container_name: nexus
+    restart: always
+    ports:
+      - "8081:8081"
+    volumes:
+      - nexus-data:/nexus-data:rw
+    networks:
+      - backend-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: sonarqube
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  # Ajout du service pour votre application Spring Boot
+  tpfoyer:
+    build: .
+    container_name: tpfoyer
+    restart: always
+    ports:
+      - "8089:8089"  # L'application expose le port 8089
+    networks:
+      - backend-network
+    depends_on:
+      - mysql  # Si votre application dépend de MySQL pour démarrer
+
+networks:
+  backend-network:
+    external: true
+
+volumes:
+  jenkins_home:
+  sonarqube_data:
+  nexus-data:
+  mysql_data:
