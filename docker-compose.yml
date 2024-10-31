@@ -24,8 +24,6 @@ services:
       - sonar.jdbc.password=rootpassword  # Ensure this matches the MySQL password
     ports:
       - "9000:9000"
-      - "9092:9092"
-      - "9093:9093"
     volumes:
       - sonarqube_data:/opt/sonarqube
     networks:
