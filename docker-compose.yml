@@ -1,81 +1,44 @@
-version: '3.9'
+version: '3.8'
 
 services:
   jenkins:
-    build: .  # Build from the Dockerfile in the current directory
     container_name: jenkins
-    restart: always
-    working_dir: /var/jenkins_home
+    image: selimrachdi5erpbi7-jenkins
+    restart: unless-stopped
     ports:
       - "8080:8080"
-      - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - backend-network
 
-  sonarqube:
-    image: sonarqube:9.9.5-community
-    container_name: sonarqube
-    restart: always
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: unless-stopped
     environment:
-      sonar.jdbc.url: jdbc:mysql://mysql:3306/sonarqube?createDatabaseIfNotExist=true
-      sonar.jdbc.username: root
-      sonar.jdbc.password: rootpassword
-    ports:
-      - "9000:9000"
+      MYSQL_ROOT_PASSWORD: your_password  # Change as needed
     volumes:
-      - sonarqube_data:/opt/sonarqube
-    networks:
-      - backend-network
-    depends_on:
-      - mysql
+      - mysql_data:/var/lib/mysql
 
   nexus:
-    image: sonatype/nexus3
     container_name: nexus
-    restart: always
+    image: sonatype/nexus3
+    restart: unless-stopped
     ports:
       - "8081:8081"
     volumes:
-      - nexus-data:/nexus-data:rw
-    networks:
-      - backend-network
+      - nexus-data:/nexus-data
 
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: sonarqube
+  sonarqube:
+    container_name: sonarqube
+    image: sonarqube
+    restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "9000:9000"
     volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  tpfoyer:
-    build: .  # This points to the Dockerfile in the current directory
-    container_name: tpfoyer
-    restart: always
-    ports:
-      - "8089:8089"
-    environment:
-      SPRING_APPLICATION_JSON: '{"spring": {"datasource": {"url": "jdbc:mysql://mysql:3306/sonarqube", "username": "root", "password": "rootpassword"}}}'
-    networks:
-      - backend-network
-    depends_on:
-      - mysql
-
-networks:
-  backend-network:
-    external: true
+      - sonarqube_data:/opt/sonarqube/data
 
 volumes:
   jenkins_home:
-  sonarqube_data:
-  nexus-data:
   mysql_data:
+  nexus_data:
+  sonarqube_data:
