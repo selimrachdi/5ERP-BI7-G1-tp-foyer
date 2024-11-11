@@ -25,8 +25,8 @@ public class ReservationRestController {
     // http://localhost:8089/tpfoyer/reservation/retrieve-reservation/8
     @GetMapping("/retrieve-reservation/{reservation-id}")
     public Reservation retrieveReservation(@PathVariable("reservation-id") String rId) {
-        return  Reservation reservation = reservationService.retrieveReservation(rId);
-
+        Reservation reservation = reservationService.retrieveReservation(rId);
+        return reservation;
     }
 
 
@@ -58,6 +58,7 @@ public class ReservationRestController {
         return reservation;
     }
 
+    // http://localhost:8089/tpfoyer/reservation/remove-reservation/{reservation-id}
     @DeleteMapping("/remove-reservation/{reservation-id}")
     public void removeReservation(@PathVariable("reservation-id") String rId) {
         reservationService.removeReservation(rId);
