@@ -53,7 +53,6 @@ public class EtudiantRestController {
         return etudiant;
     }
 
-    // http://localhost:8089/tpfoyer/etudiant/remove-etudiant/{etudiant-id}
     @DeleteMapping("/remove-etudiant/{etudiant-id}")
     public void removeEtudiant(@PathVariable("etudiant-id") Long chId) {
         etudiantService.removeEtudiant(chId);
@@ -62,8 +61,8 @@ public class EtudiantRestController {
     // http://localhost:8089/tpfoyer/etudiant/modify-etudiant
     @PutMapping("/modify-etudiant")
     public Etudiant modifyEtudiant(@RequestBody Etudiant c) {
-        Etudiant etudiant = etudiantService.modifyEtudiant(c);
-        return etudiant;
+        return Etudiant etudiant = etudiantService.modifyEtudiant(c);
+
     }
 
 

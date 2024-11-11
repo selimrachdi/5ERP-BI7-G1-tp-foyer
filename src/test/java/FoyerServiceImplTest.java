@@ -1,5 +1,6 @@
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,6 +12,7 @@ import tn.esprit.tpfoyer.service.FoyerServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class FoyerServiceImplTest {
@@ -48,6 +50,14 @@ public class FoyerServiceImplTest {
     }
 
     @Test
+    void testRetrieveFoyerNotFound() {
+        when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(1L));
+        verify(foyerRepository, times(1)).findById(1L);
+    }
+
+    @Test
     void testAddFoyer() {
         Foyer foyer = new Foyer();
         when(foyerRepository.save(foyer)).thenReturn(foyer);
@@ -59,27 +69,71 @@ public class FoyerServiceImplTest {
 
     @Test
     void testAddFoyerNull() {
-        Foyer result = foyerService.addFoyer(null);
-        assertNull(result);
+        assertThrows(IllegalArgumentException.class, () -> foyerService.addFoyer(null));
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
     @Test
     void testModifyFoyer() {
         Foyer foyer = new Foyer();
+        foyer.setId(1L);
+        when(foyerRepository.existsById(foyer.getId())).thenReturn(true);
         when(foyerRepository.save(foyer)).thenReturn(foyer);
 
         Foyer result = foyerService.modifyFoyer(foyer);
         assertNotNull(result);
+        verify(foyerRepository, times(1)).existsById(foyer.getId());
         verify(foyerRepository, times(1)).save(foyer);
+    }
+
+    @Test
+    void testModifyFoyerNull() {
+        assertThrows(IllegalArgumentException.class, () -> foyerService.modifyFoyer(null));
+        verify(foyerRepository, never()).save(any(Foyer.class));
+    }
+
+    @Test
+    void testModifyFoyerWithNullId() {
+        Foyer foyer = new Foyer();
+        assertThrows(IllegalArgumentException.class, () -> foyerService.modifyFoyer(foyer));
+        verify(foyerRepository, never()).save(any(Foyer.class));
+    }
+
+    @Test
+    void testModifyFoyerNotFound() {
+        Foyer foyer = new Foyer();
+        foyer.setId(1L);
+        when(foyerRepository.existsById(foyer.getId())).thenReturn(false);
+
+        assertThrows(NoSuchElementException.class, () -> foyerService.modifyFoyer(foyer));
+        verify(foyerRepository, times(1)).existsById(foyer.getId());
+        verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
     @Test
     void testRemoveFoyer() {
         Long foyerId = 1L;
+        when(foyerRepository.existsById(foyerId)).thenReturn(true);
         doNothing().when(foyerRepository).deleteById(foyerId);
 
         foyerService.removeFoyer(foyerId);
+        verify(foyerRepository, times(1)).existsById(foyerId);
         verify(foyerRepository, times(1)).deleteById(foyerId);
+    }
+
+    @Test
+    void testRemoveFoyerNullId() {
+        assertThrows(IllegalArgumentException.class, () -> foyerService.removeFoyer(null));
+        verify(foyerRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    void testRemoveFoyerNotFound() {
+        Long foyerId = 1L;
+        when(foyerRepository.existsById(foyerId)).thenReturn(false);
+
+        assertThrows(NoSuchElementException.class, () -> foyerService.removeFoyer(foyerId));
+        verify(foyerRepository, times(1)).existsById(foyerId);
+        verify(foyerRepository, never()).deleteById(foyerId);
     }
 }

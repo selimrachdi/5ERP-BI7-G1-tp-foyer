@@ -37,7 +37,7 @@ public class ChambreRestController {
         return chambre;
     }
 
-    // http://localhost:8089/tpfoyer/chambre/remove-chambre/{chambre-id}
+
     @DeleteMapping("/remove-chambre/{chambre-id}")
     public void removeChambre(@PathVariable("chambre-id") Long chId) {
         chambreService.removeChambre(chId);
@@ -46,8 +46,8 @@ public class ChambreRestController {
     // http://localhost:8089/tpfoyer/chambre/modify-chambre
     @PutMapping("/modify-chambre")
     public Chambre modifyChambre(@RequestBody Chambre c) {
-        Chambre chambre = chambreService.modifyChambre(c);
-        return chambre;
+        return  Chambre chambre = chambreService.modifyChambre(c);
+
     }
 
 
