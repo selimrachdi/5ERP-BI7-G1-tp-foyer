@@ -7,7 +7,6 @@ import tn.esprit.tpfoyer.repository.FoyerRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -36,11 +35,11 @@ public class FoyerServiceImpl implements IFoyerService {
 
     @Override
     public Foyer modifyFoyer(Foyer foyer) {
-        if (foyer == null || foyer.getId() == null) {
+        if (foyer == null || foyer.getIdFoyer() == null) {
             throw new IllegalArgumentException("Foyer or Foyer ID cannot be null");
         }
-        if (!foyerRepository.existsById(foyer.getId())) {
-            throw new NoSuchElementException("Cannot modify non-existing Foyer with ID: " + foyer.getId());
+        if (!foyerRepository.existsById(foyer.getIdFoyer())) {
+            throw new NoSuchElementException("Cannot modify non-existing Foyer with ID: " + foyer.getIdFoyer());
         }
         return foyerRepository.save(foyer);
     }
