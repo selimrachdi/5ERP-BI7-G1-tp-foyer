@@ -76,13 +76,13 @@ public class FoyerServiceImplTest {
     @Test
     void testModifyFoyer() {
         Foyer foyer = new Foyer();
-        foyer.setId(1L);
-        when(foyerRepository.existsById(foyer.getId())).thenReturn(true);
+        foyer.setIdFoyer(1L);  // Remplacer setId() par setIdFoyer()
+        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
         when(foyerRepository.save(foyer)).thenReturn(foyer);
 
         Foyer result = foyerService.modifyFoyer(foyer);
         assertNotNull(result);
-        verify(foyerRepository, times(1)).existsById(foyer.getId());
+        verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());  // Remplacer getId() par getIdFoyer()
         verify(foyerRepository, times(1)).save(foyer);
     }
 
@@ -102,11 +102,11 @@ public class FoyerServiceImplTest {
     @Test
     void testModifyFoyerNotFound() {
         Foyer foyer = new Foyer();
-        foyer.setId(1L);
-        when(foyerRepository.existsById(foyer.getId())).thenReturn(false);
+        foyer.setIdFoyer(1L);  // Remplacer setId() par setIdFoyer()
+        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(false);
 
         assertThrows(NoSuchElementException.class, () -> foyerService.modifyFoyer(foyer));
-        verify(foyerRepository, times(1)).existsById(foyer.getId());
+        verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());  // Remplacer getId() par getIdFoyer()
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
