@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class FoyerServiceImplTest {
+ class FoyerServiceImplTest {
 
     @Mock
     private FoyerRepository foyerRepository;
