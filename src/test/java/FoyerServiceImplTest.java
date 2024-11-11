@@ -183,7 +183,7 @@ class FoyerServiceImplTest {
 
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;
-
+//
         logger.info("Temps pour ajouter 1000 foyers : {} ms", duration);
         assertTrue(duration < 5000, "L'ajout de foyers doit être performant.");
 }
