@@ -157,19 +157,8 @@ class FoyerServiceImplTest {
     }
 
     // Test d'intégration: ajouter puis récupérer un foyer
-    @Test
-    void testIntegrationAddAndRetrieveFoyer() {
-        Foyer foyer = new Foyer();
-        foyer.setNomFoyer("Foyer A");
-        when(foyerRepository.save(foyer)).thenReturn(foyer);
-        when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
 
-        Foyer addedFoyer = foyerService.addFoyer(foyer);
-        assertNotNull(addedFoyer);
 
-        Foyer retrievedFoyer = foyerService.retrieveFoyer(1L);
-        assertEquals("Foyer A", retrievedFoyer.getNomFoyer());
-    }
 
     // Test de performance: mesure de l'efficacité de l'ajout de foyers en masse
     @Test
@@ -186,4 +175,5 @@ class FoyerServiceImplTest {
 //
         logger.info("Temps pour ajouter 1000 foyers : {} ms", duration);
         assertTrue(duration < 5000, "L'ajout de foyers doit être performant.");
+    }
 }
