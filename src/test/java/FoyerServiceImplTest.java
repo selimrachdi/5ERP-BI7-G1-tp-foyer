@@ -136,4 +136,33 @@ import java.util.Optional;
         verify(foyerRepository, times(1)).existsById(foyerId);
         verify(foyerRepository, never()).deleteById(foyerId);
     }
+     @Test
+     void testRetrieveAllFoyersPerformance() {
+         int numberOfFoyers = 1000; // Nombre de foyers à créer
+         long startTime = System.currentTimeMillis();
+
+         // Créer un grand nombre de foyers
+         for (int i = 0; i < numberOfFoyers; i++) {
+             Foyer foyer = new Foyer();
+             foyerService.addFoyer(foyer);
+         }
+
+         // Mesurer le temps d'exécution
+         foyerService.retrieveAllFoyers();
+         long endTime = System.currentTimeMillis();
+
+         long duration = endTime - startTime;
+         assertTrue(duration < 1000); // Ajuster le seuil en fonction de vos exigences
+     }
+     @Test
+     void testSaveAndRetrieveFoyer() {
+         Foyer foyer = new Foyer();
+         foyer.setName("Le Grand Foyer");
+
+         foyerService.addFoyer(foyer);
+
+         Foyer retrievedFoyer = foyerService.retrieveFoyer(foyer.getId());
+
+         assertEquals(foyer.getName(), retrievedFoyer.getName());
+     }
 }
