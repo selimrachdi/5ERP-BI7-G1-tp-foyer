@@ -86,8 +86,8 @@ public class FoyerServiceImplTest {
     @Test
     void testModifyFoyerNotFound() {
         Foyer foyer = new Foyer();
-        foyer.setId(1L);  // Assuming Foyer has an id field
-        when(foyerRepository.findById(foyer.getId())).thenReturn(Optional.empty());
+        foyer.setIdFoyer(1L);  // Using idFoyer as per the Foyer entity
+        when(foyerRepository.findById(foyer.getIdFoyer())).thenReturn(Optional.empty());
 
         Foyer result = foyerService.modifyFoyer(foyer);
         assertNull(result);  // Assuming modifyFoyer returns null if not found
