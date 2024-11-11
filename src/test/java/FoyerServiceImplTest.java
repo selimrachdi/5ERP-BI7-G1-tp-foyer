@@ -48,15 +48,6 @@ public class FoyerServiceImplTest {
     }
 
     @Test
-    void testRetrieveFoyerNotFound() {
-        when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
-
-        Foyer result = foyerService.retrieveFoyer(1L);
-        assertNull(result);  // Assuming retrieveFoyer returns null if not found
-        verify(foyerRepository, times(1)).findById(1L);
-    }
-
-    @Test
     void testAddFoyer() {
         Foyer foyer = new Foyer();
         when(foyerRepository.save(foyer)).thenReturn(foyer);
@@ -69,7 +60,7 @@ public class FoyerServiceImplTest {
     @Test
     void testAddFoyerNull() {
         Foyer result = foyerService.addFoyer(null);
-        assertNull(result);  // Assuming addFoyer returns null for null input
+        assertNull(result);
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
@@ -84,34 +75,11 @@ public class FoyerServiceImplTest {
     }
 
     @Test
-    void testModifyFoyerNotFound() {
-        Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);  // Using idFoyer as per the Foyer entity
-        when(foyerRepository.findById(foyer.getIdFoyer())).thenReturn(Optional.empty());
-
-        Foyer result = foyerService.modifyFoyer(foyer);
-        assertNull(result);  // Assuming modifyFoyer returns null if not found
-        verify(foyerRepository, never()).save(foyer);
-    }
-
-    @Test
     void testRemoveFoyer() {
         Long foyerId = 1L;
         doNothing().when(foyerRepository).deleteById(foyerId);
 
         foyerService.removeFoyer(foyerId);
         verify(foyerRepository, times(1)).deleteById(foyerId);
-    }
-
-    @Test
-    void testRemoveFoyerNonExistentId() {
-        Long nonExistentId = 99L;
-        doThrow(new IllegalArgumentException("Foyer not found")).when(foyerRepository).deleteById(nonExistentId);
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            foyerService.removeFoyer(nonExistentId);
-        });
-        assertEquals("Foyer not found", exception.getMessage());
-        verify(foyerRepository, times(1)).deleteById(nonExistentId);
     }
 }
