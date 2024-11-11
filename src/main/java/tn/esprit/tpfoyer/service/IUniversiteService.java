@@ -13,5 +13,5 @@ public interface IUniversiteService {
     public Universite modifyUniversite(Universite universite);
 
     // Here we will add later methods calling keywords and methods calling JPQL
-
+    List<Universite> findUniversitesByName(String name);
 }

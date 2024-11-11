@@ -21,6 +21,10 @@ public class Universite {
 
     String adresse;
 
+    // New attributes for testing
+    String description;
+    String contactNumber;
+
     @OneToOne(cascade = CascadeType.ALL)
     Foyer foyer;
 

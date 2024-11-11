@@ -33,4 +33,9 @@ public class UniversiteServiceImpl implements IUniversiteService {
     public void removeUniversite(Long universiteId) {
         universiteRepository.deleteById(universiteId);
     }
+
+    @Override
+    public List<Universite> findUniversitesByName(String name) {
+        return universiteRepository.findByNomUniversite(name);
+    }
 }
