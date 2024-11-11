@@ -64,8 +64,10 @@ class FoyerServiceImplTest {
         when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(1L));
+
         verify(foyerRepository, times(1)).findById(1L);
     }
+
 
     // Test unitaire: ajouter un foyer
     @Test
@@ -122,9 +124,11 @@ class FoyerServiceImplTest {
         when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(false);
 
         assertThrows(NoSuchElementException.class, () -> foyerService.modifyFoyer(foyer));
+
         verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
+
 
     // Test unitaire: suppression d'un foyer
     @Test
@@ -152,9 +156,11 @@ class FoyerServiceImplTest {
         when(foyerRepository.existsById(foyerId)).thenReturn(false);
 
         assertThrows(NoSuchElementException.class, () -> foyerService.removeFoyer(foyerId));
+
         verify(foyerRepository, times(1)).existsById(foyerId);
         verify(foyerRepository, never()).deleteById(foyerId);
     }
+
 
     // Test d'intégration: ajouter puis récupérer un foyer
 
