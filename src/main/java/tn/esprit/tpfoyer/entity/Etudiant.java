@@ -30,6 +30,16 @@ public class Etudiant {
     @ManyToMany(mappedBy = "etudiants")
     Set<Reservation> reservations;
 
+    // New Attributes
+    String email;
+    String phoneNumber;
+
+
+    @ManyToMany
+    @JoinTable(name = "etudiant_course",
+            joinColumns = @JoinColumn(name = "etudiant_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id"))
+    Set<Course> courses;
 }
 
 

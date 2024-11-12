@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import tn.esprit.tpfoyer.entity.Etudiant;
 import tn.esprit.tpfoyer.repository.EtudiantRepository;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,6 +36,15 @@ public class EtudiantServiceImpl implements IEtudiantService {
         return etudiantRepository.findEtudiantByCinEtudiant(cin);
     }
 
+    @Override
+    public List<Etudiant> findEtudiantsByCourse(String courseName) {
+        return etudiantRepository.findEtudiantsByCourseName(courseName);
+    }
+
+    @Override
+    public List<Etudiant> findEtudiantsByDateRange(Date startDate, Date endDate) {
+        return etudiantRepository.findEtudiantsByDateRange(startDate, endDate);
+    }
 
 
 }
