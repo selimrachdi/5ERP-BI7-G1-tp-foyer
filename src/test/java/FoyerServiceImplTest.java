@@ -3,9 +3,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import tn.esprit.tpfoyer.entity.Foyer;
 import tn.esprit.tpfoyer.repository.FoyerRepository;
 import tn.esprit.tpfoyer.service.FoyerServiceImpl;
@@ -15,7 +17,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class FoyerServiceImplTest {
+// Extension Mockito pour utiliser les annotations de mock
+@ExtendWith(MockitoExtension.class)
+class FoyerServiceImplTest {
 
     @Mock
     private FoyerRepository foyerRepository;
@@ -28,7 +32,7 @@ public class FoyerServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // Test de récupération de tous les foyers (méthode de récupération en masse)
+    // Test unitaire: récupérer tous les foyers
     @Test
     void testRetrieveAllFoyers() {
         Foyer foyer1 = new Foyer();
@@ -40,7 +44,7 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).findAll();
     }
 
-    // Test de récupération d'un foyer spécifique par ID (méthode de récupération unique)
+    // Test unitaire: récupérer un foyer par ID
     @Test
     void testRetrieveFoyer() {
         Foyer foyer = new Foyer();
@@ -51,7 +55,7 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).findById(1L);
     }
 
-    // Test de récupération d'un foyer inexistant (exception attendue)
+    // Test unitaire: gérer le cas d'un foyer non trouvé
     @Test
     void testRetrieveFoyerNotFound() {
         when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
@@ -60,7 +64,7 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).findById(1L);
     }
 
-    // Test d'ajout d'un foyer (insertion dans le dépôt)
+    // Test unitaire: ajouter un foyer
     @Test
     void testAddFoyer() {
         Foyer foyer = new Foyer();
@@ -71,18 +75,18 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).save(foyer);
     }
 
-    // Test d'ajout d'un foyer null (validation des arguments)
+    // Test unitaire: gestion de l'ajout d'un foyer null
     @Test
     void testAddFoyerNull() {
         assertThrows(IllegalArgumentException.class, () -> foyerService.addFoyer(null));
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de modification d'un foyer existant (mise à jour d'un enregistrement)
+    // Test unitaire: modifier un foyer existant
     @Test
     void testModifyFoyer() {
         Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);
+        foyer.setIdFoyer(1L);  // Remplacer setId() par setIdFoyer()
         when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
         when(foyerRepository.save(foyer)).thenReturn(foyer);
 
@@ -92,14 +96,14 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).save(foyer);
     }
 
-    // Test de modification d'un foyer null (validation des arguments)
+    // Test unitaire: gestion de la modification d'un foyer null
     @Test
     void testModifyFoyerNull() {
         assertThrows(IllegalArgumentException.class, () -> foyerService.modifyFoyer(null));
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de modification d'un foyer avec un ID null (validation des arguments)
+    // Test unitaire: modifier un foyer avec un ID null
     @Test
     void testModifyFoyerWithNullId() {
         Foyer foyer = new Foyer();
@@ -107,7 +111,7 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de modification d'un foyer inexistant (exception attendue)
+    // Test unitaire: gestion de la modification d'un foyer non trouvé
     @Test
     void testModifyFoyerNotFound() {
         Foyer foyer = new Foyer();
@@ -119,7 +123,7 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de suppression d'un foyer existant (suppression dans le dépôt)
+    // Test unitaire: suppression d'un foyer
     @Test
     void testRemoveFoyer() {
         Long foyerId = 1L;
@@ -131,14 +135,14 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).deleteById(foyerId);
     }
 
-    // Test de suppression avec un ID null (validation des arguments)
+    // Test unitaire: suppression d'un foyer avec un ID null
     @Test
     void testRemoveFoyerNullId() {
         assertThrows(IllegalArgumentException.class, () -> foyerService.removeFoyer(null));
         verify(foyerRepository, never()).deleteById(anyLong());
     }
 
-    // Test de suppression d'un foyer inexistant (exception attendue)
+    // Test unitaire: suppression d'un foyer non trouvé
     @Test
     void testRemoveFoyerNotFound() {
         Long foyerId = 1L;
@@ -148,4 +152,6 @@ public class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).existsById(foyerId);
         verify(foyerRepository, never()).deleteById(foyerId);
     }
+
+
 }
