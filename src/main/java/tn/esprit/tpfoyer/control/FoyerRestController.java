@@ -17,29 +17,34 @@ public class FoyerRestController {
     // http://localhost:8089/tpfoyer/foyer/retrieve-all-foyers
     @GetMapping("/retrieve-all-foyers")
     public List<Foyer> getFoyers() {
-        return foyerService.retrieveAllFoyers();
+        List<Foyer> listFoyers = foyerService.retrieveAllFoyers();
+        return listFoyers;
     }
-
     // http://localhost:8089/tpfoyer/foyer/retrieve-foyer/8
     @GetMapping("/retrieve-foyer/{foyer-id}")
     public Foyer retrieveFoyer(@PathVariable("foyer-id") Long fId) {
-        return foyerService.retrieveFoyer(fId);
+        Foyer foyer = foyerService.retrieveFoyer(fId);
+        return foyer;
     }
 
     // http://localhost:8089/tpfoyer/foyer/add-foyer
     @PostMapping("/add-foyer")
     public Foyer addFoyer(@RequestBody Foyer f) {
-        return foyerService.addFoyer(f);
+        Foyer foyer = foyerService.addFoyer(f);
+        return foyer;
     }
 
+    // http://localhost:8089/tpfoyer/foyer/remove-foyer/{foyer-id}
     @DeleteMapping("/remove-foyer/{foyer-id}")
     public void removeFoyer(@PathVariable("foyer-id") Long fId) {
         foyerService.removeFoyer(fId);
     }
 
-    // http://localhost:8089/tpfoyer/foyer/modify-foyerr
+    // http://localhost:8089/tpfoyer/foyer/modify-foyer
     @PutMapping("/modify-foyer")
     public Foyer modifyFoyer(@RequestBody Foyer f) {
-        return foyerService.modifyFoyer(f);
+        Foyer foyer = foyerService.modifyFoyer(f);
+        return foyer;
     }
+
 }
