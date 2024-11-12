@@ -82,7 +82,7 @@ public class FoyerServiceImplTest {
 
         Foyer result = foyerService.modifyFoyer(foyer);
         assertNotNull(result);
-        verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());  // Remplacer getId() par getIdFoyer()
+        verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());  // Remplacer getId(r) par getIdFoyer()
         verify(foyerRepository, times(1)).save(foyer);
     }
 

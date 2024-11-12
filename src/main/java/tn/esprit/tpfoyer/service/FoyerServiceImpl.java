@@ -43,7 +43,7 @@ public class FoyerServiceImpl implements IFoyerService {
         }
         return foyerRepository.save(foyer);
     }
-
+//
     @Override
     public void removeFoyer(Long foyerId) {
         if (foyerId == null) {

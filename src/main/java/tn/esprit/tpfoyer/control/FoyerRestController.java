@@ -37,7 +37,7 @@ public class FoyerRestController {
         foyerService.removeFoyer(fId);
     }
 
-    // http://localhost:8089/tpfoyer/foyer/modify-foyer
+    // http://localhost:8089/tpfoyer/foyer/modify-foyerr
     @PutMapping("/modify-foyer")
     public Foyer modifyFoyer(@RequestBody Foyer f) {
         return foyerService.modifyFoyer(f);
