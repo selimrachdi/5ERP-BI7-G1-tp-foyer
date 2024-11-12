@@ -142,7 +142,7 @@ class FoyerServiceImplTest {
         verify(foyerRepository, never()).deleteById(anyLong());
     }
 
-    // Test unitaire: suppression d'un foyer non trouvé
+    // Test unitaire: suppression d'un foyer non trouvéee
     @Test
     void testRemoveFoyerNotFound() {
         Long foyerId = 1L;
