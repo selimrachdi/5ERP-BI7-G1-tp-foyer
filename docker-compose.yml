@@ -1,0 +1,29 @@
+version: "v2.29.7"
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_DATABASE=db
+    ports:
+      - 3307:3307
+    volumes:
+      - db:/var/lib/mysql
+  app-timesheet:
+    depends_on:
+      - mysqldb
+    image: azizhendili/tp-foyer:5.0.0
+    restart: on-failure
+    ports:
+      - 8082:8082
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3307/db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=null
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MySQL5InnoDBDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    stdin_open: true
+    tty: true
+volumes:
+  db:
