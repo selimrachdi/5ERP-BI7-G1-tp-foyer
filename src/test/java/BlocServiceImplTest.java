@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.List;
 import java.util.Optional;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -32,6 +31,7 @@ class BlocServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // Initialize the Bloc objects with test data
         bloc1 = new Bloc();
         bloc1.setIdBloc(1L);
         bloc1.setNomBloc("Bloc A");
@@ -50,7 +50,7 @@ class BlocServiceImplTest {
 
         List<Bloc> result = blocService.retrieveAllBlocs();
 
-        assertEquals(2, result.size());
+        assertEquals(2, result.size(), "The retrieved list should contain 2 blocs.");
         verify(blocRepository, times(1)).findAll();
     }
 
@@ -61,9 +61,9 @@ class BlocServiceImplTest {
 
         List<Bloc> result = blocService.retrieveBlocsSelonCapacite(75);
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(bloc1));
-        assertFalse(result.contains(bloc2));
+        assertEquals(1, result.size(), "Only Bloc A should be returned.");
+        assertTrue(result.contains(bloc1), "Bloc A should be in the result.");
+        assertFalse(result.contains(bloc2), "Bloc B should not be in the result.");
     }
 
     @Test
@@ -72,8 +72,8 @@ class BlocServiceImplTest {
 
         Bloc result = blocService.retrieveBloc(1L);
 
-        assertNotNull(result);
-        assertEquals("Bloc A", result.getNomBloc());
+        assertNotNull(result, "The retrieved bloc should not be null.");
+        assertEquals("Bloc A", result.getNomBloc(), "The name of the retrieved bloc should be Bloc A.");
         verify(blocRepository, times(1)).findById(1L);
     }
 
@@ -83,8 +83,8 @@ class BlocServiceImplTest {
 
         Bloc result = blocService.addBloc(bloc1);
 
-        assertNotNull(result);
-        assertEquals(bloc1.getNomBloc(), result.getNomBloc());
+        assertNotNull(result, "The added bloc should not be null.");
+        assertEquals(bloc1.getNomBloc(), result.getNomBloc(), "The name of the added bloc should be the same.");
         verify(blocRepository, times(1)).save(bloc1);
     }
 
@@ -95,13 +95,14 @@ class BlocServiceImplTest {
 
         Bloc result = blocService.modifyBloc(bloc1);
 
-        assertEquals(120, result.getCapaciteBloc());
+        assertEquals(120, result.getCapaciteBloc(), "The capacity of the modified bloc should be updated to 120.");
         verify(blocRepository, times(1)).save(bloc1);
     }
 
     @Test
     void removeBloc() {
         blocService.removeBloc(1L);
+
         verify(blocRepository, times(1)).deleteById(1L);
     }
 
@@ -112,8 +113,8 @@ class BlocServiceImplTest {
 
         List<Bloc> result = blocService.trouverBlocsSansFoyer();
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(bloc1));
+        assertEquals(1, result.size(), "The list should contain only 1 bloc without a foyer.");
+        assertTrue(result.contains(bloc1), "The bloc should be in the result.");
         verify(blocRepository, times(1)).findAllByFoyerIsNull();
     }
 
@@ -124,8 +125,8 @@ class BlocServiceImplTest {
 
         List<Bloc> result = blocService.trouverBlocsParNomEtCap("Bloc A", 100);
 
-        assertEquals(1, result.size());
-        assertTrue(result.contains(bloc1));
+        assertEquals(1, result.size(), "The list should contain only 1 bloc with name Bloc A and capacity 100.");
+        assertTrue(result.contains(bloc1), "The bloc should be in the result.");
         verify(blocRepository, times(1)).findAllByNomBlocAndCapaciteBloc("Bloc A", 100);
     }
 }
