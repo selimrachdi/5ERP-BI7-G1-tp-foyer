@@ -99,8 +99,6 @@ class FoyerServiceImplTest {
         verify(foyerRepository, times(1)).deleteById(foyerId);
     }
 
-    // Additional tests to increase coverage
-
     @Test
     @DisplayName("Test retrieving all foyers with empty result")
     void testRetrieveAllFoyersEmpty() {
@@ -111,9 +109,9 @@ class FoyerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test retrieving foyer with null ID throws IllegalArgumentException")
+    @DisplayName("Test retrieving foyer with null ID throws NoSuchElementException")
     void testRetrieveFoyerWithNullId() {
-        assertThrows(IllegalArgumentException.class, () -> foyerService.retrieveFoyer(null));
+        assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(null));
         verify(foyerRepository, never()).findById(anyLong());
     }
 
@@ -212,9 +210,9 @@ class FoyerServiceImplTest {
     void testAddFoyerNegativeCapacity() {
         Foyer foyer = new Foyer();
         foyer.setCapaciteFoyer(-1L);
+        when(foyerRepository.save(foyer)).thenReturn(foyer);
 
         Foyer result = foyerService.addFoyer(foyer);
-        assertNotNull(result);
         assertEquals(-1L, result.getCapaciteFoyer());
         verify(foyerRepository, times(1)).save(foyer);
     }
