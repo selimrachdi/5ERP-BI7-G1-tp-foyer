@@ -1,0 +1,151 @@
+pipeline {
+    agent any
+
+    environment {
+        // SonarQube environment variables
+        SONARQUBE_URL = 'http://192.168.50.4:9000'
+        SONARQUBE_TOKEN = 'squ_f0df3f229c47ddc8260e5cf6a7f72efae3b3a800'
+
+        // Docker Hub credentials
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Replace with your credentials ID
+        DOCKER_IMAGE_NAME = 'selimrachdi1/selimrachdi-5erp-bi7-g1'
+        DOCKER_TAG = 'latest'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git branch: 'SelimRachdi-5ERP-BI7-G1', url: 'https://github.com/selimrachdi/5ERP-BI7-G1-tp-foyer'
+            }
+        }
+
+        stage('Maven Clean') {
+            steps {
+                script {
+                    sh 'mvn clean'
+                }
+            }
+        }
+
+        stage('Maven Compile') {
+            steps {
+                script {
+                    sh 'mvn compile'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    sh """
+                    mvn sonar:sonar \
+                        -Dsonar.projectKey=selimrachdidevops \
+                        -Dsonar.host.url=${SONARQUBE_URL} \
+                        -Dsonar.token=${SONARQUBE_TOKEN}
+                    """
+                }
+            }
+        }
+
+        stage('Maven Test') {
+            steps {
+                script {
+                    sh 'mvn test'
+                }
+            }
+        }
+
+        stage('Maven Deploy') {
+            steps {
+                script {
+                    sh 'mvn deploy'
+                }
+            }
+        }
+
+        // Stage to check for modifications and conditionally build Docker image
+        stage('Check for Code Modifications') {
+            steps {
+                script {
+                    // Check if there are any changes in the codebase
+                    def changes = sh(script: "git diff --name-only HEAD~1", returnStdout: true).trim()
+
+                    if (changes) {
+                        echo "Changes detected: ${changes}"
+                        env.BUILD_DOCKER_IMAGE = 'true' // Set a variable to indicate we should build the image
+                    } else {
+                        echo "No changes detected. Skipping Docker image build."
+                        env.BUILD_DOCKER_IMAGE = 'false'
+                    }
+                }
+            }
+        }
+
+        // Stage to build a Docker image from the Dockerfile (only if there are changes)
+        stage('Build Docker Image') {
+            when {
+                expression { env.BUILD_DOCKER_IMAGE == 'true' }
+            }
+            steps {
+                script {
+                    sh """
+                    docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} .
+                    """
+                }
+            }
+        }
+
+        // Stage to push the Docker image to Docker Hub (only if the image was built)
+        stage('Push to Docker Hub') {
+            when {
+                expression { env.BUILD_DOCKER_IMAGE == 'true' }
+            }
+            steps {
+                script {
+                    // Authenticate to Docker Hub with Jenkins credentials
+                    sh """
+                    echo "${DOCKERHUB_CREDENTIALS_PSW}" | docker login -u "${DOCKERHUB_CREDENTIALS_USR}" --password-stdin
+                    docker push ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
+                    """
+                }
+            }
+        }
+
+        // Stage to deploy with Docker Compose
+        stage('Docker Compose Up') {
+            steps {
+                script {
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+            emailext (
+                subject: "Jenkins Build Success: ${currentBuild.fullDisplayName}",
+                body: "The Jenkins build ${currentBuild.fullDisplayName} completed successfully.",
+                to: "selim.rachdi@esprit.tn"
+            )
+        }
+        failure {
+            echo 'Pipeline failed.'
+            emailext (
+                subject: "Jenkins Build Failure: ${currentBuild.fullDisplayName}",
+                body: "The Jenkins build ${currentBuild.fullDisplayName} has failed.",
+                to: "selim.rachdi@esprit.tn"
+            )
+        }
+        unstable {
+            echo 'Pipeline is unstable.'
+            emailext (
+                subject: "Jenkins Build Unstable: ${currentBuild.fullDisplayName}",
+                body: "The Jenkins build ${currentBuild.fullDisplayName} is unstable.",
+                to: "selim.rachdi@esprit.tn"
+            )
+        }
+    }
+}
