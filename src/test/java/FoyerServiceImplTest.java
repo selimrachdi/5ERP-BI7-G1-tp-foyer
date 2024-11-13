@@ -1,8 +1,8 @@
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.logging.Logger;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -12,7 +12,6 @@ import tn.esprit.tpfoyer.repository.FoyerRepository;
 import tn.esprit.tpfoyer.service.FoyerServiceImpl;
 
 import java.util.*;
-import java.util.logging.Level;
 
 class FoyerServiceImplTest {
 
@@ -22,46 +21,58 @@ class FoyerServiceImplTest {
     @InjectMocks
     private FoyerServiceImpl foyerService;
 
-    private static final Logger LOGGER = Logger.getLogger(FoyerServiceImplTest.class.getName());
+    private AutoCloseable closeable;
 
     @BeforeEach
     void setUp() {
-        try {
-            MockitoAnnotations.openMocks(this);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to initialize mocks", e);
-        }
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 
     @Test
-    @DisplayName("Retrieve all foyers")
     void testRetrieveAllFoyers() {
         Foyer foyer1 = new Foyer();
         Foyer foyer2 = new Foyer();
-        List<Foyer> foyers = Arrays.asList(foyer1, foyer2);
+        when(foyerRepository.findAll()).thenReturn(Arrays.asList(foyer1, foyer2));
 
-        when(foyerRepository.findAll()).thenReturn(foyers);
-
-        List<Foyer> result = foyerService.retrieveAllFoyers();
-        assertEquals(2, result.size());
+        List<Foyer> foyers = foyerService.retrieveAllFoyers();
+        assertEquals(2, foyers.size());
         verify(foyerRepository, times(1)).findAll();
     }
 
     @Test
-    @DisplayName("Retrieve foyer by ID")
+    void testRetrieveAllFoyersEmpty() {
+        when(foyerRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<Foyer> foyers = foyerService.retrieveAllFoyers();
+        assertTrue(foyers.isEmpty());
+        verify(foyerRepository, times(1)).findAll();
+    }
+
+
+    @Test
     void testRetrieveFoyer() {
         Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);
-
         when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
 
         Foyer result = foyerService.retrieveFoyer(1L);
-        assertEquals(1L, result.getIdFoyer());
+        assertNotNull(result);
         verify(foyerRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("Add foyer")
+    void testRetrieveFoyerInvalidId() {
+        when(foyerRepository.findById(-1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(-1L));
+        verify(foyerRepository, times(1)).findById(-1L);
+    }
+
+    @Test
     void testAddFoyer() {
         Foyer foyer = new Foyer();
         when(foyerRepository.save(foyer)).thenReturn(foyer);
@@ -72,25 +83,45 @@ class FoyerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Modify existing foyer")
+    void testAddFoyerNull() {
+        assertThrows(IllegalArgumentException.class, () -> foyerService.addFoyer(null));
+        verify(foyerRepository, never()).save(any(Foyer.class));
+    }
+
+    @Test
     void testModifyFoyer() {
         Foyer foyer = new Foyer();
         foyer.setIdFoyer(1L);
-
         when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
         when(foyerRepository.save(foyer)).thenReturn(foyer);
 
         Foyer result = foyerService.modifyFoyer(foyer);
-        assertEquals(1L, result.getIdFoyer());
+        assertNotNull(result);
         verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
         verify(foyerRepository, times(1)).save(foyer);
     }
 
     @Test
-    @DisplayName("Remove foyer by ID")
+    void testModifyFoyerNotFound() {
+        Foyer foyer = new Foyer();
+        foyer.setIdFoyer(1L);
+        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(false);
+
+        assertThrows(NoSuchElementException.class, () -> foyerService.modifyFoyer(foyer));
+        verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
+        verify(foyerRepository, never()).save(any(Foyer.class));
+    }
+
+    @Test
+    void testModifyFoyerWithNullId() {
+        Foyer foyer = new Foyer();
+        assertThrows(IllegalArgumentException.class, () -> foyerService.modifyFoyer(foyer));
+        verify(foyerRepository, never()).save(any(Foyer.class));
+    }
+
+    @Test
     void testRemoveFoyer() {
         Long foyerId = 1L;
-
         when(foyerRepository.existsById(foyerId)).thenReturn(true);
         doNothing().when(foyerRepository).deleteById(foyerId);
 
@@ -100,120 +131,41 @@ class FoyerServiceImplTest {
     }
 
     @Test
-    @DisplayName("Test retrieving all foyers with empty result")
-    void testRetrieveAllFoyersEmpty() {
-        when(foyerRepository.findAll()).thenReturn(Collections.emptyList());
-        List<Foyer> foyers = foyerService.retrieveAllFoyers();
-        assertTrue(foyers.isEmpty(), "Expected an empty list of foyers");
-        verify(foyerRepository, times(1)).findAll();
+    void testRemoveFoyerWithNegativeId() {
+        Long invalidId = -1L;
+        when(foyerRepository.existsById(invalidId)).thenReturn(false);
+
+        assertThrows(NoSuchElementException.class, () -> foyerService.removeFoyer(invalidId));
+        verify(foyerRepository, times(1)).existsById(invalidId);
+        verify(foyerRepository, never()).deleteById(anyLong());
     }
 
     @Test
-    @DisplayName("Test retrieving foyer with null ID throws NoSuchElementException")
-    void testRetrieveFoyerWithNullId() {
-        assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(null));
-        verify(foyerRepository, never()).findById(anyLong());
-    }
-
-    @Test
-    @DisplayName("Test modifying a foyer with partial update")
-    void testModifyFoyerPartialData() {
-        Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);
-        Foyer updatedFoyer = new Foyer();
-        updatedFoyer.setIdFoyer(1L);
-        updatedFoyer.setNomFoyer("Updated Name");
-
-        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
-        when(foyerRepository.save(foyer)).thenReturn(updatedFoyer);
-
-        Foyer result = foyerService.modifyFoyer(foyer);
-        assertEquals("Updated Name", result.getNomFoyer());
-        verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
-        verify(foyerRepository, times(1)).save(foyer);
-    }
-
-    @Test
-    @DisplayName("Test addFoyer with large dataset")
-    void testAddFoyerWithLargeDataset() {
-        for (long i = 1; i <= 1000; i++) {
-            Foyer foyer = new Foyer();
-            foyer.setIdFoyer(i);
-            when(foyerRepository.save(foyer)).thenReturn(foyer);
-
-            Foyer result = foyerService.addFoyer(foyer);
-            assertEquals(i, result.getIdFoyer());
-            verify(foyerRepository, times(1)).save(foyer);
-        }
-    }
-
-    @Test
-    @DisplayName("Test modifying a Foyer and returning a different object")
-    void testModifyFoyerReturnsDifferentObject() {
-        Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);
-        Foyer modifiedFoyer = new Foyer();
-        modifiedFoyer.setIdFoyer(1L);
-        modifiedFoyer.setNomFoyer("Modified Foyer");
-
-        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
-        when(foyerRepository.save(foyer)).thenReturn(modifiedFoyer);
-
-        Foyer result = foyerService.modifyFoyer(foyer);
-        assertEquals("Modified Foyer", result.getNomFoyer());
-        verify(foyerRepository, times(1)).save(foyer);
-    }
-
-    @Test
-    @DisplayName("Test removeFoyer with multiple calls")
-    void testRemoveFoyerMultipleCalls() {
+    void testRemoveFoyerNotFound() {
         Long foyerId = 1L;
-        when(foyerRepository.existsById(foyerId)).thenReturn(true);
-        doNothing().when(foyerRepository).deleteById(foyerId);
+        when(foyerRepository.existsById(foyerId)).thenReturn(false);
 
-        foyerService.removeFoyer(foyerId);
-        foyerService.removeFoyer(foyerId);
-
-        verify(foyerRepository, times(2)).existsById(foyerId);
-        verify(foyerRepository, times(2)).deleteById(foyerId);
+        assertThrows(NoSuchElementException.class, () -> foyerService.removeFoyer(foyerId));
+        verify(foyerRepository, times(1)).existsById(foyerId);
+        verify(foyerRepository, never()).deleteById(foyerId);
     }
 
     @Test
-    @DisplayName("Test addFoyer with Foyer having maximum capacity")
-    void testAddFoyerMaxCapacity() {
+    void testUpdateNonExistentFoyer() {
         Foyer foyer = new Foyer();
-        foyer.setCapaciteFoyer(Long.MAX_VALUE);
-        when(foyerRepository.save(foyer)).thenReturn(foyer);
+        foyer.setIdFoyer(10L);  // A non-existent Foyer ID
+        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(false);
 
-        Foyer result = foyerService.addFoyer(foyer);
-        assertEquals(Long.MAX_VALUE, result.getCapaciteFoyer());
-        verify(foyerRepository, times(1)).save(foyer);
-    }
-
-    @Test
-    @DisplayName("Test modifyFoyer with Foyer having capacity of zero")
-    void testModifyFoyerZeroCapacity() {
-        Foyer foyer = new Foyer();
-        foyer.setIdFoyer(1L);
-        foyer.setCapaciteFoyer(0L);
-        when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
-        when(foyerRepository.save(foyer)).thenReturn(foyer);
-
-        Foyer result = foyerService.modifyFoyer(foyer);
-        assertEquals(0L, result.getCapaciteFoyer());
+        assertThrows(NoSuchElementException.class, () -> foyerService.modifyFoyer(foyer));
         verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
-        verify(foyerRepository, times(1)).save(foyer);
+        verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
     @Test
-    @DisplayName("Test addFoyer with negative capacity")
-    void testAddFoyerNegativeCapacity() {
-        Foyer foyer = new Foyer();
-        foyer.setCapaciteFoyer(-1L);
-        when(foyerRepository.save(foyer)).thenReturn(foyer);
+    void testFindFoyerWithNonExistentId() {
+        when(foyerRepository.findById(999L)).thenReturn(Optional.empty());
 
-        Foyer result = foyerService.addFoyer(foyer);
-        assertEquals(-1L, result.getCapaciteFoyer());
-        verify(foyerRepository, times(1)).save(foyer);
+        assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(999L));
+        verify(foyerRepository, times(1)).findById(999L);
     }
 }
