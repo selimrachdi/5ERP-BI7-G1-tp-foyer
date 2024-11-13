@@ -16,7 +16,7 @@ import tn.esprit.tpfoyer.service.FoyerServiceImpl;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class FoyerServiceImplTest {
+class FoyerServiceImplTest {
 
     @Mock
     private FoyerRepository foyerRepository;
@@ -29,164 +29,151 @@ public class FoyerServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // Test de la récupération de tous les foyers
+    // Test retrieving all foyers
     @Test
-    @DisplayName("Test de la récupération de tous les foyers")
+    @DisplayName("Retrieve all foyers - success")
     void testRetrieveAllFoyers() {
         Foyer foyer1 = new Foyer();
         Foyer foyer2 = new Foyer();
         when(foyerRepository.findAll()).thenReturn(Arrays.asList(foyer1, foyer2));
 
-        // Vérifie que la méthode renvoie exactement 2 foyers
         List<Foyer> foyers = foyerService.retrieveAllFoyers();
         assertEquals(2, foyers.size());
         verify(foyerRepository, times(1)).findAll();
     }
 
-    // Test de la récupération d'un foyer par son ID
+    // Test retrieving a foyer by ID
     @Test
-    @DisplayName("Test de la récupération d'un foyer par ID")
+    @DisplayName("Retrieve foyer by ID - success")
     void testRetrieveFoyer() {
         Foyer foyer = new Foyer();
         when(foyerRepository.findById(1L)).thenReturn(Optional.of(foyer));
 
-        // Vérifie que la méthode renvoie bien le foyer trouvé
         Foyer result = foyerService.retrieveFoyer(1L);
         assertNotNull(result);
         verify(foyerRepository, times(1)).findById(1L);
     }
 
-    // Test de la récupération d'un foyer avec un ID inexistant
+    // Test retrieving a non-existing foyer by ID
     @Test
-    @DisplayName("Test de la récupération d'un foyer inexistant")
+    @DisplayName("Retrieve non-existing foyer by ID - throws exception")
     void testRetrieveFoyerNotFound() {
         when(foyerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Vérifie que la méthode lance une exception pour un foyer inexistant
         assertThrows(NoSuchElementException.class, () -> foyerService.retrieveFoyer(1L));
         verify(foyerRepository, times(1)).findById(1L);
     }
 
-    // Test de l'ajout d'un foyer
+    // Test adding a valid foyer
     @Test
-    @DisplayName("Test de l'ajout d'un foyer")
+    @DisplayName("Add new foyer - success")
     void testAddFoyer() {
         Foyer foyer = new Foyer();
         when(foyerRepository.save(foyer)).thenReturn(foyer);
 
-        // Vérifie que la méthode ajoute et renvoie le foyer
         Foyer result = foyerService.addFoyer(foyer);
         assertNotNull(result);
         verify(foyerRepository, times(1)).save(foyer);
     }
 
-    // Test de l'ajout d'un foyer null
+    // Test adding a null foyer
     @Test
-    @DisplayName("Test de l'ajout d'un foyer null")
+    @DisplayName("Add null foyer - throws exception")
     void testAddFoyerNull() {
-        // Vérifie que la méthode lance une exception pour un foyer null
         assertThrows(IllegalArgumentException.class, () -> foyerService.addFoyer(null));
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de modification d'un foyer existant
+    // Test modifying an existing foyer
     @Test
-    @DisplayName("Test de la modification d'un foyer existant")
+    @DisplayName("Modify existing foyer - success")
     void testModifyFoyer() {
         Foyer foyer = new Foyer();
         foyer.setIdFoyer(1L);
         when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(true);
         when(foyerRepository.save(foyer)).thenReturn(foyer);
 
-        // Vérifie que la méthode modifie et renvoie le foyer
         Foyer result = foyerService.modifyFoyer(foyer);
         assertNotNull(result);
         verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
         verify(foyerRepository, times(1)).save(foyer);
     }
 
-    // Test de modification d'un foyer null
+    // Test modifying a null foyer
     @Test
-    @DisplayName("Test de la modification d'un foyer null")
+    @DisplayName("Modify null foyer - throws exception")
     void testModifyFoyerNull() {
-        // Vérifie que la méthode lance une exception pour un foyer null
         assertThrows(IllegalArgumentException.class, () -> foyerService.modifyFoyer(null));
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de modification d'un foyer avec un ID null
+    // Test modifying a foyer with null ID
     @Test
-    @DisplayName("Test de la modification d'un foyer avec ID null")
+    @DisplayName("Modify foyer with null ID - throws exception")
     void testModifyFoyerWithNullId() {
         Foyer foyer = new Foyer();
-        // Vérifie que la méthode lance une exception pour un ID null
         assertThrows(IllegalArgumentException.class, () -> foyerService.modifyFoyer(foyer));
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de modification d'un foyer inexistant
+    // Test modifying a non-existing foyer
     @Test
-    @DisplayName("Test de la modification d'un foyer inexistant")
+    @DisplayName("Modify non-existing foyer - throws exception")
     void testModifyFoyerNotFound() {
         Foyer foyer = new Foyer();
         foyer.setIdFoyer(1L);
         when(foyerRepository.existsById(foyer.getIdFoyer())).thenReturn(false);
 
-        // Vérifie que la méthode lance une exception pour un foyer inexistant
         assertThrows(NoSuchElementException.class, () -> foyerService.modifyFoyer(foyer));
         verify(foyerRepository, times(1)).existsById(foyer.getIdFoyer());
         verify(foyerRepository, never()).save(any(Foyer.class));
     }
 
-    // Test de suppression d'un foyer existant
+    // Test removing an existing foyer
     @Test
-    @DisplayName("Test de la suppression d'un foyer existant")
+    @DisplayName("Remove existing foyer - success")
     void testRemoveFoyer() {
         Long foyerId = 1L;
         when(foyerRepository.existsById(foyerId)).thenReturn(true);
         doNothing().when(foyerRepository).deleteById(foyerId);
 
-        // Vérifie que la méthode supprime le foyer
         foyerService.removeFoyer(foyerId);
         verify(foyerRepository, times(1)).existsById(foyerId);
         verify(foyerRepository, times(1)).deleteById(foyerId);
     }
 
-    // Test de suppression d'un foyer avec ID null
+    // Test removing a foyer with null ID
     @Test
-    @DisplayName("Test de la suppression d'un foyer avec ID null")
+    @DisplayName("Remove foyer with null ID - throws exception")
     void testRemoveFoyerNullId() {
-        // Vérifie que la méthode lance une exception pour un ID null
         assertThrows(IllegalArgumentException.class, () -> foyerService.removeFoyer(null));
         verify(foyerRepository, never()).deleteById(anyLong());
     }
 
-    // Test de suppression d'un foyer inexistant
+    // Test removing a non-existing foyer
     @Test
-    @DisplayName("Test de la suppression d'un foyer inexistant")
+    @DisplayName("Remove non-existing foyer - throws exception")
     void testRemoveFoyerNotFound() {
         Long foyerId = 1L;
         when(foyerRepository.existsById(foyerId)).thenReturn(false);
 
-        // Vérifie que la méthode lance une exception pour un foyer inexistant
         assertThrows(NoSuchElementException.class, () -> foyerService.removeFoyer(foyerId));
         verify(foyerRepository, times(1)).existsById(foyerId);
         verify(foyerRepository, never()).deleteById(foyerId);
     }
 
-    // Tests dynamiques pour vérifier les capacités du foyer
+    // Dynamic tests for testing foyer capacities
     @TestFactory
-    @DisplayName("Tests dynamiques pour la capacité des foyers")
+    @DisplayName("Dynamic tests for foyer capacities")
     Stream<DynamicTest> dynamicTestsForFoyerCapacity() {
         return Stream.of(
-                new Foyer(null, "Petit Foyer", 50L, null, null),
-                new Foyer(null, "Grand Foyer", 500L, null, null)
-        ).map(foyer -> DynamicTest.dynamicTest("Test de capacité pour foyer: " + foyer.getCapaciteFoyer(),
+                new Foyer(null, "Small Foyer", 50L, null, null),
+                new Foyer(null, "Large Foyer", 500L, null, null)
+        ).map(foyer -> DynamicTest.dynamicTest("Test capacity for foyer: " + foyer.getCapaciteFoyer(),
                 () -> {
                     when(foyerRepository.save(foyer)).thenReturn(foyer);
                     Foyer result = foyerService.addFoyer(foyer);
 
-                    // Vérifie que la capacité enregistrée est correcte
                     assertEquals(foyer.getCapaciteFoyer(), result.getCapaciteFoyer());
                     verify(foyerRepository, times(1)).save(foyer);
                 }));
