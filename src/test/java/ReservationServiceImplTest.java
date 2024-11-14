@@ -34,7 +34,7 @@ public class ReservationServiceImplTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 //this is a commentaazpao
-        // Initialize Etudiant instances
+        // Initialize Etudiant instances///
         etudiant1 = new Etudiant();
         etudiant1.setIdEtudiant(1L);
         etudiant1.setNomEtudiant("John");
